@@ -1,0 +1,27 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#f2e9d8"/>
+  <circle cx="300" cy="300" r="270" fill="none" stroke="#e8dcc2" stroke-width="1"/>
+  <g fill="none" stroke="#ad8a4e" stroke-width="2.5" stroke-linecap="round">
+    <circle cx="300" cy="130" r="16" fill="#ad8a4e" stroke="none"/>
+    <path d="M300 146 L300 176"/>
+    <path d="M230 240 A70 70 0 0 1 370 240 L370 280 A70 70 0 0 1 230 280 Z" fill="#f6ead0" stroke="#ad8a4e"/>
+    <g stroke="#9c3b34" stroke-width="1.5">
+      <path d="M255 220 L255 260"/>
+      <path d="M280 206 L280 270"/>
+      <path d="M300 200 L300 276"/>
+      <path d="M320 206 L320 270"/>
+      <path d="M345 220 L345 260"/>
+    </g>
+    <circle cx="300" cy="242" r="8" fill="#d9a441" stroke="none"/>
+    <path d="M255 280 L240 340 M275 280 L263 355 M300 280 L300 365 M325 280 L337 355 M345 280 L360 340"/>
+    <circle cx="240" cy="346" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="263" cy="361" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="300" cy="371" r="7" fill="#9c3b34" stroke="none"/>
+    <circle cx="337" cy="361" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="360" cy="346" r="6" fill="#ad8a4e" stroke="none"/>
+    <path d="M225 300 L215 330 M375 300 L385 330" stroke-width="1.8"/>
+    <circle cx="215" cy="336" r="5" fill="#d9a441" stroke="none"/>
+    <circle cx="385" cy="336" r="5" fill="#d9a441" stroke="none"/>
+  </g>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#5c5042">Refined — longer drops, side pearls</text>
+</svg>

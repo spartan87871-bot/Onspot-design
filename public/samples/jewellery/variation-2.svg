@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#f2e9d8"/>
+  <circle cx="300" cy="300" r="270" fill="none" stroke="#e8dcc2" stroke-width="1"/>
+  <g fill="none" stroke="#ad8a4e" stroke-width="2.5" stroke-linecap="round">
+    <path d="M140 220 A160 160 0 0 0 460 220" stroke-width="6"/>
+    <g stroke="#9c3b34" stroke-width="1.6">
+      <ellipse cx="170" cy="226" rx="10" ry="14"/>
+      <ellipse cx="220" cy="252" rx="11" ry="15"/>
+      <ellipse cx="270" cy="268" rx="11" ry="15"/>
+      <ellipse cx="330" cy="268" rx="11" ry="15"/>
+      <ellipse cx="380" cy="252" rx="11" ry="15"/>
+      <ellipse cx="430" cy="226" rx="10" ry="14"/>
+    </g>
+    <path d="M270 280 L255 340 A45 45 0 0 0 345 340 L330 280 Z" fill="#f6ead0"/>
+    <ellipse cx="300" cy="330" rx="18" ry="22" fill="#d9a441" stroke="#ad8a4e"/>
+    <path d="M255 340 L245 375 M275 345 L268 385 M300 348 L300 392 M325 345 L332 385 M345 340 L355 375"/>
+    <circle cx="245" cy="380" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="268" cy="390" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="300" cy="397" r="7" fill="#9c3b34" stroke="none"/>
+    <circle cx="332" cy="390" r="6" fill="#ad8a4e" stroke="none"/>
+    <circle cx="355" cy="380" r="6" fill="#ad8a4e" stroke="none"/>
+  </g>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#5c5042">Kundan choker — concept sketch</text>
+</svg>

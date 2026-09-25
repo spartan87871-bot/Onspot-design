@@ -1,0 +1,10 @@
+<svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#f2e9d8"/>
+  <circle cx="300" cy="300" r="270" fill="none" stroke="#e8dcc2" stroke-width="1"/>
+  <g fill="none" stroke="#ad8a4e" stroke-linecap="round">
+    <circle cx="300" cy="300" r="150" stroke-width="8"/>
+    <circle cx="300" cy="300" r="150" stroke-width="1.5" stroke="#5c5042" stroke-dasharray="2 6"/>
+    <circle cx="300" cy="150" r="9" fill="#d9a441" stroke="none"/>
+  </g>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#5c5042">Minimal kada — concept sketch</text>
+</svg>

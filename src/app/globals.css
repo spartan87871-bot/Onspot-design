@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #faf5ec;
+  --color-paper: #f2e9d8;
+  --color-paper-dark: #e8dcc2;
+  --color-ink: #2a2118;
+  --color-ink-soft: #5c5042;
+  --color-terracotta: #c1613a;
+  --color-terracotta-dark: #a34d2c;
+  --color-indigo: #2f3b77;
+  --color-indigo-dark: #232c5c;
+  --color-gold: #ad8a4e;
+  --color-turmeric: #d9a441;
+  --color-madder: #9c3b34;
+  --color-line: #ddceac;
+
+  --background: var(--color-cream);
+  --foreground: var(--color-ink);
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-paper: var(--color-paper);
+  --color-paper-dark: var(--color-paper-dark);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
+  --color-indigo: var(--color-indigo);
+  --color-indigo-dark: var(--color-indigo-dark);
+  --color-gold: var(--color-gold);
+  --color-turmeric: var(--color-turmeric);
+  --color-madder: var(--color-madder);
+  --color-line: var(--color-line);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+}
+
+/* This is a pitch-demo site meant to look identical on every screen it is
+   recorded on, so it intentionally does not follow system dark mode. */
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
+
+.bg-block-print {
+  background-image:
+    radial-gradient(circle at 10px 10px, var(--color-line) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+
+.hairline {
+  border-color: var(--color-line);
+}
+
+::selection {
+  background: var(--color-indigo);
+  color: var(--color-cream);
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1.5deg); }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.animate-shimmer {
+  background-image: linear-gradient(90deg, var(--color-paper) 0px, var(--color-paper-dark) 40px, var(--color-paper) 80px);
+  background-size: 600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}

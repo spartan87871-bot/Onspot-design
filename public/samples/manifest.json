@@ -1,0 +1,57 @@
+{
+  "jewellery": {
+    "variations": [
+      "/samples/jewellery/variation-1.svg",
+      "/samples/jewellery/variation-2.svg",
+      "/samples/jewellery/variation-3.svg",
+      "/samples/jewellery/variation-4.svg"
+    ],
+    "refined": "/samples/jewellery/refined-1.svg",
+    "feasibility": {
+      "feasibilityScore": 7,
+      "metalWeightRange": "8 - 11 grams (22kt gold)",
+      "stoneSettingMethod": "Kundan foil setting with lac (resin) backing",
+      "manufacturingDifficulty": "Moderate",
+      "suggestedChanges": [
+        "Reduce the number of hanging pearl drops from 5 to 3 to cut assembly time",
+        "Widen the dome base by 1-2mm so the kundan stones seat more securely",
+        "Use a single-piece cast base instead of soldered chain links to reduce labour"
+      ]
+    }
+  },
+  "blockprint": {
+    "motifs": [
+      "/samples/blockprint/motif-1.svg",
+      "/samples/blockprint/motif-2.svg",
+      "/samples/blockprint/motif-3.svg",
+      "/samples/blockprint/motif-4.svg"
+    ],
+    "tile": "/samples/blockprint/tile-seamless.svg",
+    "feasibility": {
+      "feasibilityScore": 8,
+      "lineThicknessOk": true,
+      "blocksNeeded": 2,
+      "colorsNeeded": 2,
+      "detailLevel": "Medium",
+      "suggestedSimplifications": [
+        "Merge the two thinnest inner curves into one bolder line so the wood block doesn't chip during carving",
+        "Increase the gap between the small dot accents by at least 3mm for cleaner hand-stamping",
+        "Keep the outline as the single 'rekh' block and use one 'datta' block for the fill colour"
+      ]
+    },
+    "remnants": [
+      {
+        "title": "Quilted zip pouch",
+        "description": "Offcuts pieced into a patchwork panel for a small quilted pouch, indigo lining, brass zip."
+      },
+      {
+        "title": "Fabric-covered button earrings",
+        "description": "Leftover scraps stretched over button forms and mounted on gold-tone ear wires — a low-waste companion piece to the print run."
+      },
+      {
+        "title": "Reversible tote bag",
+        "description": "Two contrasting remnant panels stitched back-to-back into a reversible market tote with rope handles."
+      }
+    ]
+  }
+}

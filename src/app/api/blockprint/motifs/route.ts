@@ -78,10 +78,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ images, demo: false });
   } catch (err) {
     console.error("POST /api/blockprint/motifs failed:", err);
+    const debug =
+      req.nextUrl.searchParams.get("debug") === "shubham-temp"
+        ? { debugError: err instanceof Error ? err.message : String(err) }
+        : {};
     return NextResponse.json({
       images: getBlockprintMotifs(),
       demo: true,
       note: hasKeys ? DEMO_NOTE_CALL_FAILED : DEMO_NOTE_NO_KEYS,
+      ...debug,
     });
   }
 }

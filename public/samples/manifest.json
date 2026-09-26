@@ -21,10 +21,10 @@
   },
   "blockprint": {
     "motifs": [
-      "/samples/blockprint/motif-1.svg",
-      "/samples/blockprint/motif-2.svg",
-      "/samples/blockprint/motif-3.svg",
-      "/samples/blockprint/motif-4.svg"
+      "/samples/blockprint/design-1.png",
+      "/samples/blockprint/design-2.png",
+      "/samples/blockprint/design-3.png",
+      "/samples/blockprint/design-4.png"
     ],
     "tile": "/samples/blockprint/tile-seamless.svg",
     "feasibility": {

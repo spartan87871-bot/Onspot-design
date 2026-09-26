@@ -82,7 +82,7 @@ function normalizeOutputs(output) {
     .filter((u) => typeof u === "string" && u.length > 0);
 }
 
-async function generateImages(prompt, count = 1) {
+async function generateImages(prompt, count = 1, aspectRatio = "1:1") {
   // Note: we use the low-level predictions API + wait() rather than replicate.run() —
   // in replicate-js 1.4.0, run() was observed to resolve with a null output even on a
   // successfully completed, image-producing prediction.
@@ -91,7 +91,7 @@ async function generateImages(prompt, count = 1) {
     input: {
       prompt,
       num_outputs: count,
-      aspect_ratio: "1:1",
+      aspect_ratio: aspectRatio,
       output_format: "png",
       megapixel: "1",
     },
@@ -214,34 +214,40 @@ Respond with ONLY a single JSON object (no markdown fences, no commentary) with 
   );
 
   // ---------- Block print ----------
-  console.log("\nGenerating block-print motifs…");
+  // Note: samples are photos of a model wearing the design, not flat motif illustrations.
+  // FLUX has a strong, hard-to-override bias toward adding a decorative border/panel to flat
+  // "Indian block print" illustrations (confirmed repeatedly in testing); that bias doesn't
+  // show up once the output is framed as a real garment photo instead. See git history on the
+  // block-print studio for the full story.
+  console.log("\nGenerating block-print worn-design photos…");
   const motifBriefs = [
-    { desc: "a traditional kairi paisley motif", colors: "deep natural indigo blue" },
-    { desc: "a small repeating booti floral sprig", colors: "warm brick-toned madder red" },
-    { desc: "a geometric diamond jaal lattice", colors: "iron-rust black (kali mitti) on natural off-white cotton" },
-    { desc: "a leaf and vine buta motif", colors: "deep natural indigo blue and soft turmeric yellow" },
+    { desc: "a small booti sprig motif, evenly spaced in a diagonal grid", colors: "deep natural indigo blue, undyed natural off-white cotton base", garment: "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants" },
+    { desc: "a bold geometric diamond lattice motif", colors: "warm brick-toned madder red, iron-rust black (kali mitti/iron-acetate black)", garment: "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants" },
+    { desc: "a kairi paisley motif with fine internal detail", colors: "soft natural turmeric yellow, deep natural indigo blue", garment: "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric" },
+    { desc: "a leaf and vine buta motif in a vertical column repeat", colors: "iron-rust black (kali mitti/iron-acetate black), undyed natural off-white cotton base", garment: "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants" },
   ];
   const motifUrls = [];
   for (let i = 0; i < motifBriefs.length; i++) {
-    const { desc, colors } = motifBriefs[i];
-    const prompt = `Flat, top-down illustration of a single traditional Indian hand block-print textile motif, in the style of Bagru/Sanganeri natural-dye block printing on cotton: ${desc}. Using only these natural dye colours: ${colors}. Clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark, original motif not based on any existing brand.`;
-    const [url] = await generateImages(prompt, 1);
+    const { desc, colors, garment } = motifBriefs[i];
+    const prompt = `Professional editorial fashion product photograph of a woman wearing ${garment}, made from 100% cotton hand block-printed fabric, using only these natural dye colours: ${colors}. Design brief for the print motif: ${desc}. The print motif repeats as one single shape evenly across the fabric. Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no text, no watermark, no logos, no brand markings, original garment and print not based on any existing brand.`;
+    const [url] = await generateImages(prompt, 1, "3:4");
     motifUrls.push(url);
-    await downloadTo(url, path.join(SAMPLES_DIR, "blockprint", `motif-${i + 1}.png`));
-    console.log(`  saved motif-${i + 1}.png`);
+    await downloadTo(url, path.join(SAMPLES_DIR, "blockprint", `design-${i + 1}.png`));
+    console.log(`  saved design-${i + 1}.png`);
   }
 
-  console.log("Generating seamless fabric tile from motif-1…");
+  console.log("Generating seamless fabric tile matching design-1…");
   const tilePrompt = `A seamless, tileable, repeating pattern swatch of a traditional Indian hand block-print textile motif (${motifBriefs[0].desc}), using only these natural dye colours: ${motifBriefs[0].colors}. Flat top-down view as if photographing folded cotton fabric, edge-to-edge repeat with no visible seams, even lighting, no text, no watermark, no folds or wrinkles.`;
   const [tileUrl] = await generateImages(tilePrompt, 1);
   await downloadTo(tileUrl, path.join(SAMPLES_DIR, "blockprint", "tile-seamless.png"));
   console.log("  saved tile-seamless.png");
 
-  console.log("Running block-print feasibility check on motif-1…");
+  console.log("Running block-print feasibility check on design-1…");
   const blockprintFeasibility = await askClaudeJson(
     "You are a precise, practical hand block-print artisan and block carver. You always answer with strict JSON and nothing else.",
-    `Look closely at this textile motif image. Act as an experienced hand block-print artisan / block carver in Rajasthan.
-Assess how feasible this motif is to hand-carve into a wooden printing block and print accurately.
+    `Look closely at this image of a hand block-print textile design worn on a garment. Focus only on the printed
+motif itself, ignoring the person, pose, or garment shape. Act as an experienced hand block-print artisan / block
+carver in Rajasthan. Assess how feasible this motif is to hand-carve into a wooden printing block and print accurately.
 Respond with ONLY a single JSON object (no markdown fences, no commentary) with exactly these keys:
 {
   "feasibilityScore": number from 1-10,
@@ -271,7 +277,7 @@ Respond with ONLY a JSON array of exactly 3 objects, each with keys:
       feasibility: jewelleryFeasibility,
     },
     blockprint: {
-      motifs: [1, 2, 3, 4].map((n) => `/samples/blockprint/motif-${n}.png`),
+      motifs: [1, 2, 3, 4].map((n) => `/samples/blockprint/design-${n}.png`),
       tile: "/samples/blockprint/tile-seamless.png",
       feasibility: blockprintFeasibility,
       remnants,

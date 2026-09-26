@@ -90,3 +90,5 @@ additional branded deployments from the same repo.
 
 Tip: record once in demo mode first (fast, never fails) as your safety take, then optionally record a
 second pass with real API keys configured if you want to show live generation.
+
+<!-- trigger redeploy after making repo public -->

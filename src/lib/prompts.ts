@@ -6,10 +6,15 @@ the specific elements worth borrowing from each one (silhouette, motif, stone pa
 Be concrete and concise. Never mention brand names even if you recognise a piece — describe the design elements only.`;
 
 export function buildJewelleryReferenceDescriptionPrompt(count: number): string {
-  return `The customer uploaded ${count} reference photo(s) of jewellery they like, in order.
-For each photo, write one short sentence naming the single most distinctive, reusable design element
-(e.g. "Photo 1: a domed temple-style jhumka silhouette with a stepped tiered base").
-Then write one final sentence combining the most compatible elements into a single coherent design direction.
+  return `The customer uploaded ${count} reference photo(s) of jewellery they like, in order. These are very
+likely ordinary product photos or website screenshots — possibly worn on a hand, ear, or neck, not a
+plain studio flat-lay.
+Ignore the person, skin, pose, background, and lighting entirely.
+For each photo, write one short sentence naming ONLY the piece's design element worth reusing: its
+silhouette, motif, stone pattern, or texture (e.g. "Photo 1: a domed temple-style jhumka silhouette with
+a stepped tiered base"). If a photo shows no jewellery clearly, say so in one short clause instead of guessing.
+Then write one final sentence combining the most compatible elements into a single coherent design
+direction that could be redrawn as a new standalone piece.
 Keep the whole answer under 80 words. Plain text, no markdown, no preamble.`;
 }
 
@@ -59,10 +64,16 @@ Respond with ONLY a single JSON object (no markdown fences, no commentary) with 
 }
 
 export function buildBlockPrintReferenceDescriptionPrompt(count: number): string {
-  return `The customer uploaded ${count} reference photo(s) of hand block-printed textiles they like, in order.
-For each photo, write one short sentence naming the single most distinctive, reusable motif or layout element
-(e.g. "Photo 1: a small repeating booti sprig in a diagonal grid").
-Then write one final sentence combining the most compatible elements into a single coherent motif direction.
+  return `The customer uploaded ${count} reference photo(s) of a print they like. These are very likely
+ordinary product photos or website screenshots — a model wearing a full kurta, dress, or co-ord set,
+photographed from a distance, not a close-up fabric swatch.
+Ignore the person, pose, garment silhouette, background, and lighting entirely.
+For each photo, write one short sentence naming ONLY the printed motif/pattern itself: its shape,
+repeat layout, and scale (e.g. "Photo 1: bold interlocking rounded-square lattice with a dotted circle
+inside each square, large-scale repeat"). If a photo shows no usable print (plain fabric, or the print
+isn't visible), say so in one short clause instead of guessing.
+Then write one final sentence combining the most compatible elements into a single coherent motif
+direction that could be redrawn as a flat, standalone illustration.
 Keep the whole answer under 80 words. Plain text, no markdown, no preamble.`;
 }
 

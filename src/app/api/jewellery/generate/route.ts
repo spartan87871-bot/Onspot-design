@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { askClaudeText } from "@/lib/anthropic";
-import { generateImages, generateImagesFromReferences } from "@/lib/replicate";
+import { generateImages } from "@/lib/replicate";
 import { getJewelleryVariations, DEMO_NOTE_CALL_FAILED, DEMO_NOTE_NO_KEYS } from "@/lib/demo";
 import { isSupportedImageDataUrl } from "@/lib/image";
 import {
   buildJewelleryImagePrompt,
-  buildJewelleryKontextPrompt,
   buildJewelleryReferenceDescriptionPrompt,
   JEWELLERY_VISION_SYSTEM,
 } from "@/lib/prompts";
@@ -67,21 +66,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let images: string[];
-    if (referenceImages.length > 0) {
-      // Feed the first 1-2 reference photos in as real pixels via FLUX Kontext, instead of
-      // only describing them in text — a 3rd reference (if any) still informs the prompt
-      // via referenceNotes above.
-      const kontextPrompt = buildJewelleryKontextPrompt(prompt, options, referenceNotes);
-      images = await generateImagesFromReferences({
-        prompt: kontextPrompt,
-        referenceImages: referenceImages.slice(0, 2),
-        count: 4,
-      });
-    } else {
-      const enrichedPrompt = buildJewelleryImagePrompt(prompt, options, referenceNotes);
-      images = await generateImages({ prompt: enrichedPrompt, count: 4 });
-    }
+    // Note: deliberately NOT using FLUX Kontext (pixel-editing) here. It gave genuinely
+    // good results in testing against clean, isolated product photos, but real customer
+    // references are just as likely to be a full "model wearing it" shot (very common for
+    // jewellery too — worn on a hand/ear/neck) — the same structural mismatch that broke
+    // block-print motif extraction. Describing the reference with Claude vision, then
+    // generating fresh from that description, is the more reliable default across both.
+    const enrichedPrompt = buildJewelleryImagePrompt(prompt, options, referenceNotes);
+    const images = await generateImages({ prompt: enrichedPrompt, count: 4 });
     return NextResponse.json({ images, demo: false });
   } catch {
     return NextResponse.json({

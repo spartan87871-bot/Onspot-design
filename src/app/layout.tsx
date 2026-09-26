@@ -3,6 +3,7 @@ import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SITE_NAME, SHOW_JEWELLERY, SHOW_BLOCKPRINT } from "@/lib/site";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -17,10 +18,16 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
+const scopeDescription =
+  SHOW_JEWELLERY && SHOW_BLOCKPRINT
+    ? "two AI design tools for Indian fashion brands — a jewellery design studio and a block-print studio"
+    : SHOW_JEWELLERY
+    ? "an AI jewellery design studio for Indian fashion brands"
+    : "an AI block-print design studio for Indian fashion brands";
+
 export const metadata: Metadata = {
-  title: "Loom & Lustre AI — Concept Demo",
-  description:
-    "A concept demo: two AI design tools for Indian fashion brands — a jewellery design studio and a block-print studio — from idea to a feasibility check, in minutes.",
+  title: `${SITE_NAME} — Concept Demo`,
+  description: `A concept demo: ${scopeDescription} — from idea to a feasibility check, in minutes.`,
 };
 
 export const viewport: Viewport = {

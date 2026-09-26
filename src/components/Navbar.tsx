@@ -3,29 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { SITE_NAME, SITE_MODE, SHOW_JEWELLERY, SHOW_BLOCKPRINT, singleStudioHomePath } from "@/lib/site";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/jewellery", label: "Jewellery Studio" },
-  { href: "/block-print", label: "Block-Print Studio" },
+  ...(SITE_MODE === "full" ? [{ href: "/", label: "Home" }] : []),
+  ...(SHOW_JEWELLERY ? [{ href: "/jewellery", label: "Jewellery Studio" }] : []),
+  ...(SHOW_BLOCKPRINT ? [{ href: "/block-print", label: "Block-Print Studio" }] : []),
   { href: "/about", label: "About" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const brandHref = singleStudioHomePath() ?? "/";
 
   return (
     <header className="sticky top-0 z-40 border-b hairline bg-cream/90 backdrop-blur supports-[backdrop-filter]:bg-cream/70">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
-            href="/"
+            href={brandHref}
             className="font-display text-lg sm:text-xl font-semibold tracking-tight text-ink"
             onClick={() => setOpen(false)}
           >
-            Loom <span className="text-terracotta">&amp;</span> Lustre{" "}
-            <span className="text-indigo">AI</span>
+            {SITE_NAME}
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

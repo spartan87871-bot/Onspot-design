@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import FeatureCard from "@/components/FeatureCard";
+import { singleStudioHomePath } from "@/lib/site";
 
 const steps = [
   {
@@ -20,6 +22,11 @@ const steps = [
 ];
 
 export default function Home() {
+  const singleStudioPath = singleStudioHomePath();
+  if (singleStudioPath) {
+    redirect(singleStudioPath);
+  }
+
   return (
     <div>
       <section className="relative overflow-hidden border-b hairline">

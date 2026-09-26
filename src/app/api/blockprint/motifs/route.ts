@@ -7,6 +7,7 @@ import {
   BLOCKPRINT_VISION_SYSTEM,
   buildBlockPrintDesignPrompt,
   buildBlockPrintReferenceDescriptionPrompt,
+  type BlockPrintGarment,
 } from "@/lib/prompts";
 import { NATURAL_DYE_COLORS, type NaturalDyeColor } from "@/lib/types";
 
@@ -35,7 +36,8 @@ export async function POST(req: NextRequest) {
   const referenceImages = (Array.isArray(body.referenceImages) ? body.referenceImages : [])
     .filter(isSupportedImageDataUrl)
     .slice(0, 3);
-  const garment = body.garment === "coord" ? "coord" : "kurta";
+  const garment: BlockPrintGarment =
+    body.garment === "coord" ? "coord" : body.garment === "top" ? "top" : "kurta";
 
   if (!prompt.trim() && referenceImages.length === 0) {
     return NextResponse.json(

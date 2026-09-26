@@ -9,10 +9,12 @@ import ResultGrid from "@/components/ResultGrid";
 import DemoBadge from "@/components/DemoBadge";
 import ScoreDial from "@/components/ScoreDial";
 import GarmentPreview from "@/components/GarmentPreview";
+import type { BlockPrintGarment } from "@/lib/prompts";
 import type { BlockPrintFeasibility, NaturalDyeColor, RemnantIdea } from "@/lib/types";
 
-const GARMENT_OPTIONS: { value: "kurta" | "coord"; label: string }[] = [
+const GARMENT_OPTIONS: { value: BlockPrintGarment; label: string }[] = [
   { value: "kurta", label: "Kurta" },
+  { value: "top", label: "Top / Tunic" },
   { value: "coord", label: "Co-ord set" },
 ];
 
@@ -34,7 +36,7 @@ export default function BlockPrintStudioPage() {
   const [prompt, setPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [colors, setColors] = useState<NaturalDyeColor[]>(["indigo"]);
-  const [garment, setGarment] = useState<"kurta" | "coord">("kurta");
+  const [garment, setGarment] = useState<BlockPrintGarment>("kurta");
 
   const [designs, setDesigns] = useState<string[] | null>(null);
   const [selected, setSelected] = useState<number | null>(null);

@@ -98,6 +98,20 @@ export function describeColors(colors: NaturalDyeColor[]): string {
   return colors.map((c) => DYE_COLOR_DESCRIPTIONS[c]).join(", ");
 }
 
+export type BlockPrintGarment = "kurta" | "coord" | "top";
+
+const GARMENT_DESCRIPTIONS: Record<BlockPrintGarment, string> = {
+  kurta:
+    "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants",
+  coord:
+    "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric",
+  top: "a relaxed hip-length cotton top/tunic with three-quarter sleeves and a round or notched neckline, worn loose over plain solid-coloured jeans or trousers",
+};
+
+export function describeGarment(garment: BlockPrintGarment): string {
+  return GARMENT_DESCRIPTIONS[garment];
+}
+
 export function buildBlockPrintMotifPrompt(
   userPrompt: string,
   colors: NaturalDyeColor[],
@@ -149,14 +163,11 @@ export function buildSeamlessTilePrompt(
 export function buildBlockPrintDesignPrompt(
   userPrompt: string,
   colors: NaturalDyeColor[],
-  garment: "kurta" | "coord",
+  garment: BlockPrintGarment,
   referenceNotes?: string
 ): string {
   const paletteDesc = describeColors(colors);
-  const garmentDesc =
-    garment === "kurta"
-      ? "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants"
-      : "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric";
+  const garmentDesc = describeGarment(garment);
   const hasDirection = Boolean(userPrompt.trim() || referenceNotes);
   const parts = [
     `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric,`,
@@ -174,13 +185,10 @@ export function buildBlockPrintDesignPrompt(
 export function buildGarmentPhotoPrompt(
   motifDescription: string,
   colors: NaturalDyeColor[],
-  garment: "kurta" | "coord"
+  garment: BlockPrintGarment
 ): string {
   const paletteDesc = describeColors(colors);
-  const garmentDesc =
-    garment === "kurta"
-      ? "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants"
-      : "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric";
+  const garmentDesc = describeGarment(garment);
   return `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric featuring a repeating motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no visible face close-up needed, no text, no watermark, no logos, no brand markings, original garment not based on any existing brand.`;
 }
 

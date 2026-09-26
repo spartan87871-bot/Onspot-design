@@ -65,7 +65,8 @@ export async function POST(req: NextRequest) {
       demo: false,
     };
     return NextResponse.json(clamped);
-  } catch {
+  } catch (err) {
+    console.error("POST /api/blockprint/feasibility failed:", err);
     const sample = getBlockprintFeasibilitySample();
     return NextResponse.json({
       ...sample,

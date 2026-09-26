@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
       promptStrength: 0.55,
     });
     return NextResponse.json({ images, demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/jewellery/refine failed:", err);
     return NextResponse.json({
       images: [getJewelleryRefined()],
       demo: true,

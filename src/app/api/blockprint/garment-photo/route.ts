@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     const prompt = buildGarmentPhotoPrompt(motifDescription, colors, garment);
     const images = await generateImages({ prompt, count: 2, aspectRatio: "3:4" });
     return NextResponse.json({ images, demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/blockprint/garment-photo failed:", err);
     return NextResponse.json({
       images: [],
       demo: true,

@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
     const enrichedPrompt = buildBlockPrintDesignPrompt(prompt, colors, garment, referenceNotes);
     const images = await generateImages({ prompt: enrichedPrompt, count: 4, aspectRatio: "3:4" });
     return NextResponse.json({ images, demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/blockprint/motifs failed:", err);
     return NextResponse.json({
       images: getBlockprintMotifs(),
       demo: true,

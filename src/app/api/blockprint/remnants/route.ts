@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ideas: result.slice(0, 3), demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/blockprint/remnants failed:", err);
     return NextResponse.json({
       ideas: getRemnantIdeasSample(),
       demo: true,

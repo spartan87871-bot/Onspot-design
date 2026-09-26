@@ -79,7 +79,8 @@ export async function POST(req: NextRequest) {
       demo: false,
     };
     return NextResponse.json(clamped);
-  } catch {
+  } catch (err) {
+    console.error("POST /api/jewellery/feasibility failed:", err);
     const sample = getJewelleryFeasibilitySample();
     return NextResponse.json({
       ...sample,

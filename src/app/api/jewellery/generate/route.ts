@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
     const enrichedPrompt = buildJewelleryImagePrompt(prompt, options, referenceNotes);
     const images = await generateImages({ prompt: enrichedPrompt, count: 4 });
     return NextResponse.json({ images, demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/jewellery/generate failed:", err);
     return NextResponse.json({
       images: getJewelleryVariations(),
       demo: true,

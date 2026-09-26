@@ -42,7 +42,8 @@ export async function POST(req: NextRequest) {
     );
     const images = await generateImages({ prompt, count: 1 });
     return NextResponse.json({ images, demo: false });
-  } catch {
+  } catch (err) {
+    console.error("POST /api/blockprint/tile failed:", err);
     return NextResponse.json({
       images: [getBlockprintTile()],
       demo: true,

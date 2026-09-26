@@ -92,6 +92,19 @@ export function buildSeamlessTilePrompt(
   return `A seamless, tileable, repeating pattern swatch of a traditional Indian hand block-print textile motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Flat top-down view as if photographing folded cotton fabric, edge-to-edge repeat with no visible seams, even lighting, no text, no watermark, no folds or wrinkles.`;
 }
 
+export function buildGarmentPhotoPrompt(
+  motifDescription: string,
+  colors: NaturalDyeColor[],
+  garment: "kurta" | "coord"
+): string {
+  const paletteDesc = describeColors(colors);
+  const garmentDesc =
+    garment === "kurta"
+      ? "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants"
+      : "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric";
+  return `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric featuring a repeating motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no visible face close-up needed, no text, no watermark, no logos, no brand markings, original garment not based on any existing brand.`;
+}
+
 export function buildBlockPrintFeasibilityPrompt(): string {
   return `Look closely at this textile motif image. Act as an experienced hand block-print artisan / block carver in Rajasthan.
 Assess how feasible this motif is to hand-carve into a wooden printing block and print accurately.

@@ -23,6 +23,11 @@ const FEASIBILITY_MESSAGES = [
   "Estimating detail level…",
 ];
 const REMNANT_MESSAGES = ["Thinking up remnant ideas…"];
+const GARMENT_PHOTO_MESSAGES = [
+  "Cutting and stitching the sample…",
+  "Photographing it studio-style…",
+  "Getting the drape right…",
+];
 
 export default function BlockPrintStudioPage() {
   const [prompt, setPrompt] = useState("");
@@ -42,6 +47,11 @@ export default function BlockPrintStudioPage() {
   const [tileNote, setTileNote] = useState<string | undefined>();
   const [garment, setGarment] = useState<"kurta" | "coord">("kurta");
 
+  const [garmentPhotos, setGarmentPhotos] = useState<string[] | null>(null);
+  const [garmentPhotoLoading, setGarmentPhotoLoading] = useState(false);
+  const [garmentPhotoDemo, setGarmentPhotoDemo] = useState(false);
+  const [garmentPhotoNote, setGarmentPhotoNote] = useState<string | undefined>();
+
   const [feasibility, setFeasibility] = useState<BlockPrintFeasibility | null>(null);
   const [feasibilityLoading, setFeasibilityLoading] = useState(false);
 
@@ -55,6 +65,12 @@ export default function BlockPrintStudioPage() {
     setTile(null);
     setFeasibility(null);
     setRemnants(null);
+    setGarmentPhotos(null);
+  }
+
+  function selectGarment(g: "kurta" | "coord") {
+    setGarment(g);
+    setGarmentPhotos(null);
   }
 
   async function runGenerate() {
@@ -72,6 +88,7 @@ export default function BlockPrintStudioPage() {
     setTile(null);
     setFeasibility(null);
     setRemnants(null);
+    setGarmentPhotos(null);
     try {
       const res = await fetch("/api/blockprint/motifs", {
         method: "POST",
@@ -109,6 +126,28 @@ export default function BlockPrintStudioPage() {
       setError("Couldn't build the seamless tile. Please try again.");
     } finally {
       setTileLoading(false);
+    }
+  }
+
+  async function runGarmentPhoto() {
+    if (selected === null || !motifs) return;
+    setGarmentPhotoLoading(true);
+    setGarmentPhotos(null);
+    try {
+      const res = await fetch("/api/blockprint/garment-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motifDescription: prompt, colors, garment }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setGarmentPhotos(data.images);
+      setGarmentPhotoDemo(Boolean(data.demo));
+      setGarmentPhotoNote(data.note);
+    } catch {
+      setError("Couldn't generate the photorealistic preview. Please try again.");
+    } finally {
+      setGarmentPhotoLoading(false);
     }
   }
 
@@ -264,7 +303,7 @@ export default function BlockPrintStudioPage() {
                                 <button
                                   key={g}
                                   type="button"
-                                  onClick={() => setGarment(g)}
+                                  onClick={() => selectGarment(g)}
                                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                                     garment === g ? "bg-indigo text-cream" : "text-ink-soft"
                                   }`}
@@ -277,7 +316,61 @@ export default function BlockPrintStudioPage() {
                           <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
                             <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
                           </div>
+                          <p className="text-xs text-ink-soft mt-1.5">
+                            Instant concept mockup — always available, never fails.
+                          </p>
                         </div>
+                      </div>
+
+                      <div className="mt-5 pt-5 border-t hairline">
+                        <div className="flex items-center justify-between flex-wrap gap-3">
+                          <div>
+                            <p className="text-sm font-medium text-ink">
+                              Want to see it as a real photo?
+                            </p>
+                            <p className="text-xs text-ink-soft mt-0.5">
+                              Generates an actual studio product photo of the {garment === "kurta" ? "kurta" : "co-ord set"} in this print — takes longer, uses live AI.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={runGarmentPhoto}
+                            disabled={garmentPhotoLoading}
+                            className="inline-flex items-center justify-center rounded-full bg-gold text-cream px-5 py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
+                          >
+                            {garmentPhotoLoading ? "Generating…" : "Generate real photo"}
+                          </button>
+                        </div>
+
+                        {garmentPhotoLoading && <LoadingState messages={GARMENT_PHOTO_MESSAGES} compact />}
+
+                        {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length === 0 && (
+                          <div className="mt-3">
+                            <DemoBadge note={garmentPhotoNote} />
+                          </div>
+                        )}
+
+                        {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length > 0 && (
+                          <div className="mt-4">
+                            {garmentPhotoDemo && (
+                              <div className="mb-3">
+                                <DemoBadge note={garmentPhotoNote} />
+                              </div>
+                            )}
+                            <div className="grid sm:grid-cols-2 gap-4">
+                              {garmentPhotos.map((src, i) => (
+                                <div key={i} className="rounded-2xl overflow-hidden border hairline aspect-[3/4]">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={src}
+                                    alt={`Photorealistic ${garment} preview ${i + 1}`}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

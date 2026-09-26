@@ -7,7 +7,7 @@ function readSiteMode(): SiteMode {
 }
 
 export const SITE_MODE: SiteMode = readSiteMode();
-export const SITE_NAME: string = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Loom & Lustre AI";
+export const SITE_NAME: string = process.env.NEXT_PUBLIC_SITE_NAME?.trim() || "Thread & Print Studio";
 
 export const SHOW_JEWELLERY = SITE_MODE === "full" || SITE_MODE === "jewellery";
 export const SHOW_BLOCKPRINT = SITE_MODE === "full" || SITE_MODE === "blockprint";

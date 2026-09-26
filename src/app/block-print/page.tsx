@@ -3,6 +3,7 @@
 import { useState } from "react";
 import UploadDropzone from "@/components/UploadDropzone";
 import ColorSwatchPicker from "@/components/ColorSwatchPicker";
+import OptionPills from "@/components/OptionPills";
 import LoadingState from "@/components/LoadingState";
 import ResultGrid from "@/components/ResultGrid";
 import DemoBadge from "@/components/DemoBadge";
@@ -10,11 +11,16 @@ import ScoreDial from "@/components/ScoreDial";
 import GarmentPreview from "@/components/GarmentPreview";
 import type { BlockPrintFeasibility, NaturalDyeColor, RemnantIdea } from "@/lib/types";
 
-const MOTIF_MESSAGES = [
-  "Sketching motif ideas…",
+const GARMENT_OPTIONS: { value: "kurta" | "coord"; label: string }[] = [
+  { value: "kurta", label: "Kurta" },
+  { value: "coord", label: "Co-ord set" },
+];
+
+const DESIGN_MESSAGES = [
+  "Sketching design directions…",
   "Mixing the natural-dye palette…",
-  "Laying out the block-print grid…",
-  "Adding the finishing detail…",
+  "Cutting and printing the sample…",
+  "Photographing it studio-style…",
 ];
 const TILE_MESSAGES = ["Building the seamless repeat…", "Laying it out as fabric…"];
 const FEASIBILITY_MESSAGES = [
@@ -23,18 +29,14 @@ const FEASIBILITY_MESSAGES = [
   "Estimating detail level…",
 ];
 const REMNANT_MESSAGES = ["Thinking up remnant ideas…"];
-const GARMENT_PHOTO_MESSAGES = [
-  "Cutting and stitching the sample…",
-  "Photographing it studio-style…",
-  "Getting the drape right…",
-];
 
 export default function BlockPrintStudioPage() {
   const [prompt, setPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [colors, setColors] = useState<NaturalDyeColor[]>(["indigo"]);
+  const [garment, setGarment] = useState<"kurta" | "coord">("kurta");
 
-  const [motifs, setMotifs] = useState<string[] | null>(null);
+  const [designs, setDesigns] = useState<string[] | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const [generating, setGenerating] = useState(false);
   const [genDemo, setGenDemo] = useState(false);
@@ -45,12 +47,6 @@ export default function BlockPrintStudioPage() {
   const [tileLoading, setTileLoading] = useState(false);
   const [tileDemo, setTileDemo] = useState(false);
   const [tileNote, setTileNote] = useState<string | undefined>();
-  const [garment, setGarment] = useState<"kurta" | "coord">("kurta");
-
-  const [garmentPhotos, setGarmentPhotos] = useState<string[] | null>(null);
-  const [garmentPhotoLoading, setGarmentPhotoLoading] = useState(false);
-  const [garmentPhotoDemo, setGarmentPhotoDemo] = useState(false);
-  const [garmentPhotoNote, setGarmentPhotoNote] = useState<string | undefined>();
 
   const [feasibility, setFeasibility] = useState<BlockPrintFeasibility | null>(null);
   const [feasibilityLoading, setFeasibilityLoading] = useState(false);
@@ -60,17 +56,11 @@ export default function BlockPrintStudioPage() {
   const [remnantsDemo, setRemnantsDemo] = useState(false);
   const [remnantsNote, setRemnantsNote] = useState<string | undefined>();
 
-  function selectMotif(i: number) {
+  function selectDesign(i: number) {
     setSelected(i);
     setTile(null);
     setFeasibility(null);
     setRemnants(null);
-    setGarmentPhotos(null);
-  }
-
-  function selectGarment(g: "kurta" | "coord") {
-    setGarment(g);
-    setGarmentPhotos(null);
   }
 
   async function runGenerate() {
@@ -88,34 +78,33 @@ export default function BlockPrintStudioPage() {
     setTile(null);
     setFeasibility(null);
     setRemnants(null);
-    setGarmentPhotos(null);
     try {
       const res = await fetch("/api/blockprint/motifs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, colors, referenceImages }),
+        body: JSON.stringify({ prompt, colors, referenceImages, garment }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Generation failed");
-      setMotifs(data.images);
+      setDesigns(data.images);
       setGenDemo(Boolean(data.demo));
       setGenNote(data.note);
     } catch {
-      setError("Something went wrong generating motifs. Please try again.");
+      setError("Something went wrong generating designs. Please try again.");
     } finally {
       setGenerating(false);
     }
   }
 
   async function runTile() {
-    if (selected === null || !motifs) return;
+    if (selected === null || !designs) return;
     setTileLoading(true);
     setTile(null);
     try {
       const res = await fetch("/api/blockprint/tile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ motifImageUrl: motifs[selected], colors }),
+        body: JSON.stringify({ motifImageUrl: designs[selected], motifDescription: prompt, colors }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -129,37 +118,15 @@ export default function BlockPrintStudioPage() {
     }
   }
 
-  async function runGarmentPhoto() {
-    if (selected === null || !motifs) return;
-    setGarmentPhotoLoading(true);
-    setGarmentPhotos(null);
-    try {
-      const res = await fetch("/api/blockprint/garment-photo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ motifDescription: prompt, colors, garment }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setGarmentPhotos(data.images);
-      setGarmentPhotoDemo(Boolean(data.demo));
-      setGarmentPhotoNote(data.note);
-    } catch {
-      setError("Couldn't generate the photorealistic preview. Please try again.");
-    } finally {
-      setGarmentPhotoLoading(false);
-    }
-  }
-
   async function runFeasibility() {
-    if (selected === null || !motifs) return;
+    if (selected === null || !designs) return;
     setFeasibilityLoading(true);
     setFeasibility(null);
     try {
       const res = await fetch("/api/blockprint/feasibility", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: motifs[selected] }),
+        body: JSON.stringify({ imageUrl: designs[selected] }),
       });
       const data = await res.json();
       setFeasibility(data);
@@ -199,22 +166,22 @@ export default function BlockPrintStudioPage() {
         Block-Print Studio
       </h1>
       <p className="text-ink-soft mt-3 max-w-2xl">
-        Describe a motif, or upload prints you like, pick a natural-dye palette, and
-        we&rsquo;ll generate four motif ideas — ready to turn into a seamless fabric repeat
-        and check for hand block-carving feasibility.
+        Describe a print, or upload photos you like, pick a natural-dye palette, and
+        we&rsquo;ll generate four design ideas — shown worn, ready to check for hand
+        block-carving feasibility.
       </p>
 
       <div className="grid lg:grid-cols-[380px_1fr] gap-8 mt-10">
         <div className="space-y-6">
           <div>
             <label htmlFor="bp-prompt" className="text-sm font-medium text-ink mb-2 block">
-              Describe the motif
+              Describe the print (optional)
             </label>
             <textarea
               id="bp-prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder='e.g. "a small paisley booti, spaced in a diagonal grid"'
+              placeholder='e.g. "a small paisley booti, spaced in a diagonal grid" — or leave blank and just upload photos'
               rows={3}
               className="w-full rounded-2xl border hairline bg-cream px-4 py-3 text-ink placeholder:text-ink-soft/70 focus:outline-none focus:ring-2 focus:ring-indigo/40 resize-none"
             />
@@ -224,10 +191,12 @@ export default function BlockPrintStudioPage() {
             images={referenceImages}
             onChange={setReferenceImages}
             max={3}
-            label="Upload up to 3 reference prints"
+            label="Upload up to 3 reference photos"
           />
 
           <ColorSwatchPicker value={colors} onChange={setColors} />
+
+          <OptionPills label="Garment" options={GARMENT_OPTIONS} value={garment} onChange={setGarment} />
 
           {error && <p className="text-sm text-madder">{error}</p>}
 
@@ -237,150 +206,84 @@ export default function BlockPrintStudioPage() {
             disabled={generating}
             className="w-full inline-flex items-center justify-center rounded-full bg-indigo text-cream px-6 py-3.5 font-medium hover:bg-indigo-dark transition-colors disabled:opacity-60"
           >
-            {generating ? "Generating…" : motifs ? "Regenerate motifs" : "Generate motif ideas"}
+            {generating ? "Generating…" : designs ? "Regenerate designs" : "Generate design ideas"}
           </button>
         </div>
 
         <div className="space-y-6">
-          {generating && <LoadingState messages={MOTIF_MESSAGES} />}
+          {generating && <LoadingState messages={DESIGN_MESSAGES} />}
 
-          {!generating && motifs && (
+          {!generating && designs && (
             <div className="space-y-6">
               {genDemo && <DemoBadge note={genNote} />}
-              <ResultGrid images={motifs} selected={selected} onSelect={selectMotif} labelPrefix="Motif" />
+              <ResultGrid
+                images={designs}
+                selected={selected}
+                onSelect={selectDesign}
+                labelPrefix="Design"
+                aspectClass="aspect-[3/4]"
+              />
 
               {selected !== null && (
-                <div className="space-y-6">
-                  <div className="rounded-3xl border-2 border-gold bg-paper p-6">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                      <div>
-                        <p className="font-display text-lg font-semibold text-ink">
-                          See it worn — {garment === "kurta" ? "Kurta" : "Co-ord set"}
-                        </p>
-                        <p className="text-sm text-ink-soft mt-0.5">
-                          A real studio photo of a model wearing this print. Takes longer, uses live AI.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="flex gap-1 rounded-full bg-cream border hairline p-0.5">
-                          {(["kurta", "coord"] as const).map((g) => (
-                            <button
-                              key={g}
-                              type="button"
-                              onClick={() => selectGarment(g)}
-                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                                garment === g ? "bg-indigo text-cream" : "text-ink-soft"
-                              }`}
-                            >
-                              {g === "kurta" ? "Kurta" : "Co-ord set"}
-                            </button>
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={runGarmentPhoto}
-                          disabled={garmentPhotoLoading}
-                          className="inline-flex items-center justify-center rounded-full bg-gold text-cream px-5 py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
-                        >
-                          {garmentPhotoLoading
-                            ? "Generating…"
-                            : garmentPhotos
-                            ? "Regenerate"
-                            : "Generate real photo"}
-                        </button>
-                      </div>
-                    </div>
-
-                    {garmentPhotoLoading && <LoadingState messages={GARMENT_PHOTO_MESSAGES} compact />}
-
-                    {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length === 0 && (
-                      <div className="mt-3">
-                        <DemoBadge note={garmentPhotoNote} />
-                      </div>
-                    )}
-
-                    {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length > 0 && (
-                      <div className="mt-4">
-                        {garmentPhotoDemo && (
-                          <div className="mb-3">
-                            <DemoBadge note={garmentPhotoNote} />
-                          </div>
-                        )}
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          {garmentPhotos.map((src, i) => (
-                            <div key={i} className="rounded-2xl overflow-hidden border hairline aspect-[3/4]">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={src}
-                                alt={`Photorealistic ${garment} preview ${i + 1}`}
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                <div className="rounded-3xl border hairline bg-paper p-6 space-y-6">
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={runTile}
+                      disabled={tileLoading}
+                      className="inline-flex items-center justify-center rounded-full bg-indigo text-cream px-5 py-2.5 font-medium hover:bg-indigo-dark transition-colors disabled:opacity-60"
+                    >
+                      {tileLoading ? "Building tile…" : "See print as flat fabric"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={runFeasibility}
+                      disabled={feasibilityLoading}
+                      className="inline-flex items-center justify-center rounded-full bg-terracotta text-cream px-5 py-2.5 font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-60"
+                    >
+                      {feasibilityLoading ? "Checking…" : "Can it be block printed?"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={runRemnants}
+                      disabled={remnantsLoading}
+                      className="inline-flex items-center justify-center rounded-full border-2 border-gold text-gold px-5 py-2.5 font-medium hover:bg-gold hover:text-cream transition-colors disabled:opacity-60"
+                    >
+                      {remnantsLoading ? "Thinking…" : "Remnant fabric ideas"}
+                    </button>
                   </div>
 
-                  <div className="rounded-3xl border hairline bg-paper p-6 space-y-6">
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={runTile}
-                        disabled={tileLoading}
-                        className="inline-flex items-center justify-center rounded-full bg-indigo text-cream px-5 py-2.5 font-medium hover:bg-indigo-dark transition-colors disabled:opacity-60"
-                      >
-                        {tileLoading ? "Building tile…" : "Turn into seamless repeat"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={runFeasibility}
-                        disabled={feasibilityLoading}
-                        className="inline-flex items-center justify-center rounded-full bg-terracotta text-cream px-5 py-2.5 font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-60"
-                      >
-                        {feasibilityLoading ? "Checking…" : "Can it be block printed?"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={runRemnants}
-                        disabled={remnantsLoading}
-                        className="inline-flex items-center justify-center rounded-full border-2 border-gold text-gold px-5 py-2.5 font-medium hover:bg-gold hover:text-cream transition-colors disabled:opacity-60"
-                      >
-                        {remnantsLoading ? "Thinking…" : "Remnant fabric ideas"}
-                      </button>
-                    </div>
+                  {tileLoading && <LoadingState messages={TILE_MESSAGES} compact />}
 
-                    {tileLoading && <LoadingState messages={TILE_MESSAGES} compact />}
-
-                    {tile && !tileLoading && (
-                      <div>
-                        {tileDemo && (
-                          <div className="mb-3">
-                            <DemoBadge note={tileNote} />
-                          </div>
-                        )}
-                        <div className="grid sm:grid-cols-2 gap-5">
-                          <div>
-                            <p className="text-sm font-medium text-ink mb-2">Fabric repeat</p>
-                            <div className="rounded-2xl overflow-hidden border hairline aspect-square">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={tile} alt="Seamless fabric tile" className="h-full w-full object-cover" />
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-ink mb-2">Instant concept mockup</p>
-                            <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
-                              <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
-                            </div>
-                            <p className="text-xs text-ink-soft mt-1.5">
-                              Flat vector mockup — always available, never fails.
-                            </p>
+                  {tile && !tileLoading && (
+                    <div>
+                      {tileDemo && (
+                        <div className="mb-3">
+                          <DemoBadge note={tileNote} />
+                        </div>
+                      )}
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div>
+                          <p className="text-sm font-medium text-ink mb-2">Fabric repeat</p>
+                          <div className="rounded-2xl overflow-hidden border hairline aspect-square">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={tile} alt="Seamless fabric tile" className="h-full w-full object-cover" />
                           </div>
                         </div>
+                        <div>
+                          <p className="text-sm font-medium text-ink mb-2">Instant concept mockup</p>
+                          <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
+                            <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
+                          </div>
+                          <p className="text-xs text-ink-soft mt-1.5">
+                            Flat vector mockup — always available, never fails.
+                          </p>
+                        </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {feasibilityLoading && <LoadingState messages={FEASIBILITY_MESSAGES} compact />}
+                  {feasibilityLoading && <LoadingState messages={FEASIBILITY_MESSAGES} compact />}
 
                   {feasibility && !feasibilityLoading && (
                     <div className="space-y-5">
@@ -444,15 +347,14 @@ export default function BlockPrintStudioPage() {
                       </div>
                     </div>
                   )}
-                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {!generating && !motifs && (
+          {!generating && !designs && (
             <div className="rounded-3xl border-2 border-dashed hairline flex items-center justify-center h-full min-h-[320px] text-ink-soft text-sm p-8 text-center">
-              Your four motif ideas will appear here.
+              Your four design ideas will appear here, worn.
             </div>
           )}
         </div>

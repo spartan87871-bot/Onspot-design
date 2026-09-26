@@ -73,12 +73,12 @@ repeat layout, and scale (e.g. "Photo 1: bold interlocking rounded-square lattic
 inside each square, large-scale repeat"). If a photo shows no usable print (plain fabric, or the print
 isn't visible), say so in one short clause instead of guessing.
 Then write one final sentence picking the SINGLE strongest print to move forward with — real block-print
-fabric uses exactly one motif unit repeated evenly across the whole cloth, never several unrelated motifs
-mixed together in one design. If there are multiple photos, either pick the one print you judge most
-distinctive, or describe how one photo's motif shape could reasonably borrow just one secondary detail
-(like a border stripe or a dot accent) from another — never combine two unrelated main motifs into a
-patchwork. Name that single final direction explicitly, e.g. "Final direction: a single rounded-square
-lattice motif with a dotted circle inside each square, repeated evenly."
+fabric uses exactly one motif unit repeated evenly across the whole cloth, edge to edge, with no border,
+no stripe panel, and no second pattern zone anywhere. If there are multiple photos, pick only the ONE
+print you judge most distinctive and describe that alone — do not mention or suggest combining in any
+element from the other photos, not even as an optional extra. Name that single final direction
+explicitly, e.g. "Final direction: a single rounded-square lattice motif with a dotted circle inside
+each square, repeated evenly edge to edge with no border."
 Keep the whole answer under 80 words. Plain text, no markdown, no preamble.`;
 }
 
@@ -105,12 +105,11 @@ export function buildBlockPrintMotifPrompt(
 ): string {
   const paletteDesc = describeColors(colors);
   const parts = [
-    "Flat, top-down illustration of fabric printed with ONE single traditional Indian hand block-print textile motif repeated evenly across the whole cloth,",
-    "in the style of Bagru/Sanganeri natural-dye block printing on cotton,",
+    "Close-up photograph of a swatch cut from the middle of a large piece of cotton fabric, hand block-printed with natural dyes,",
     `using only these natural dye colours: ${paletteDesc}.`,
     userPrompt.trim() ? `Design brief: ${userPrompt.trim()}.` : "",
     referenceNotes ? `Reference direction: ${referenceNotes}` : "",
-    "Exactly one motif shape repeated as a uniform, evenly-spaced grid — like real printed fabric, not a mood board or patchwork of different motifs. Do not mix multiple unrelated shapes, icons, or pattern styles into the same design. Clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark, original motif not based on any existing brand.",
+    "The motif described above repeats as ONE single shape at one consistent scale, evenly spaced in every direction, filling the entire frame edge-to-edge with no border, no frame, no selvage, no empty margin, and no second motif or stripe panel anywhere in the shot — exactly like a swatch cut from the center of a bolt of printed cloth, where the pattern simply continues past all four edges of the photo. Crisp, bold, slightly imperfect hand-block-printed linework (clean carved outlines, not painterly or photo-blurred). Shot flat and straight-on, even lighting, no fabric folds or wrinkles, no text, no watermark, no human, original pattern not based on any existing brand.",
   ];
   return parts.filter(Boolean).join(" ");
 }
@@ -140,6 +139,38 @@ export function buildSeamlessTilePrompt(
   return `A seamless, tileable, repeating pattern swatch of a traditional Indian hand block-print textile motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Flat top-down view as if photographing folded cotton fabric, edge-to-edge repeat with no visible seams, even lighting, no text, no watermark, no folds or wrinkles.`;
 }
 
+/**
+ * Primary block-print design generator: goes straight to a photo of a model wearing the
+ * garment, rather than an abstract flat motif swatch first. FLUX has a strong, hard-to-override
+ * bias toward adding a decorative border/panel to "Indian block print" flat illustrations
+ * (tested repeatedly — even explicit "no border" instructions were often ignored), but that
+ * bias doesn't show up once the output is framed as a real garment photo instead.
+ */
+export function buildBlockPrintDesignPrompt(
+  userPrompt: string,
+  colors: NaturalDyeColor[],
+  garment: "kurta" | "coord",
+  referenceNotes?: string
+): string {
+  const paletteDesc = describeColors(colors);
+  const garmentDesc =
+    garment === "kurta"
+      ? "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants"
+      : "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric";
+  const hasDirection = Boolean(userPrompt.trim() || referenceNotes);
+  const parts = [
+    `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric,`,
+    `using only these natural dye colours: ${paletteDesc}.`,
+    userPrompt.trim() ? `Design brief for the print motif: ${userPrompt.trim()}.` : "",
+    referenceNotes ? `Reference direction for the print motif: ${referenceNotes}` : "",
+    !hasDirection
+      ? "Original hand block-print motif of your own design, one single shape repeated evenly across the fabric."
+      : "The print motif repeats as one single shape evenly across the fabric.",
+    "Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no text, no watermark, no logos, no brand markings, original garment and print not based on any existing brand.",
+  ];
+  return parts.filter(Boolean).join(" ");
+}
+
 export function buildGarmentPhotoPrompt(
   motifDescription: string,
   colors: NaturalDyeColor[],
@@ -154,8 +185,11 @@ export function buildGarmentPhotoPrompt(
 }
 
 export function buildBlockPrintFeasibilityPrompt(): string {
-  return `Look closely at this textile motif image. Act as an experienced hand block-print artisan / block carver in Rajasthan.
-Assess how feasible this motif is to hand-carve into a wooden printing block and print accurately.
+  return `Look closely at this image of a hand block-print textile design — it may show the print as a flat
+motif swatch, or as fabric worn on a garment; in either case focus only on the printed motif itself,
+ignoring any person, pose, or garment shape. Act as an experienced hand block-print artisan / block
+carver in Rajasthan. Assess how feasible this motif is to hand-carve into a wooden printing block and
+print accurately.
 Respond with ONLY a single JSON object (no markdown fences, no commentary) with exactly these keys:
 {
   "feasibilityScore": number from 1-10 (10 = very easy to block print),

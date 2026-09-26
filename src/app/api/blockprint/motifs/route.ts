@@ -5,7 +5,7 @@ import { getBlockprintMotifs, DEMO_NOTE_CALL_FAILED, DEMO_NOTE_NO_KEYS } from "@
 import { isSupportedImageDataUrl } from "@/lib/image";
 import {
   BLOCKPRINT_VISION_SYSTEM,
-  buildBlockPrintMotifPrompt,
+  buildBlockPrintDesignPrompt,
   buildBlockPrintReferenceDescriptionPrompt,
 } from "@/lib/prompts";
 import { NATURAL_DYE_COLORS, type NaturalDyeColor } from "@/lib/types";
@@ -17,6 +17,7 @@ interface Body {
   prompt?: string;
   colors?: string[];
   referenceImages?: string[];
+  garment?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
   const referenceImages = (Array.isArray(body.referenceImages) ? body.referenceImages : [])
     .filter(isSupportedImageDataUrl)
     .slice(0, 3);
+  const garment = body.garment === "coord" ? "coord" : "kurta";
 
   if (!prompt.trim() && referenceImages.length === 0) {
     return NextResponse.json(
@@ -62,14 +64,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Note: deliberately NOT using FLUX Kontext (pixel-editing) here, even when reference
-    // images are provided. Real customers mostly upload full outfit/product photos of a
-    // model wearing the garment — asking an image editor to turn that into a flat,
-    // person-free motif swatch is a huge structural transform and produced nonsense in
-    // testing. Describing the motif with Claude vision, then generating a fresh flat
-    // illustration from that description, is far more reliable for this case.
-    const enrichedPrompt = buildBlockPrintMotifPrompt(prompt, colors, referenceNotes);
-    const images = await generateImages({ prompt: enrichedPrompt, count: 4 });
+    // Note: this goes straight to a photo of a model wearing the garment, not a flat motif
+    // swatch first. Two things pushed this decision: (1) real customers mostly upload full
+    // outfit photos, so pixel-editing them into a flat person-free swatch produced nonsense
+    // (see git history); (2) even generating a flat swatch fresh from a text description, FLUX
+    // kept adding a decorative border/panel around the motif no matter how forcefully the
+    // prompt said not to — a strong, hard-to-override training bias for "Indian block print"
+    // imagery. That bias doesn't appear once the output is framed as a real garment photo.
+    const enrichedPrompt = buildBlockPrintDesignPrompt(prompt, colors, garment, referenceNotes);
+    const images = await generateImages({ prompt: enrichedPrompt, count: 4, aspectRatio: "3:4" });
     return NextResponse.json({ images, demo: false });
   } catch {
     return NextResponse.json({

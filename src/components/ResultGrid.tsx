@@ -5,6 +5,7 @@ interface ResultGridProps {
   selected: number | null;
   onSelect: (index: number) => void;
   labelPrefix?: string;
+  aspectClass?: string;
 }
 
 function downloadImage(src: string, filename: string) {
@@ -18,7 +19,13 @@ function downloadImage(src: string, filename: string) {
   a.remove();
 }
 
-export default function ResultGrid({ images, selected, onSelect, labelPrefix = "Design" }: ResultGridProps) {
+export default function ResultGrid({
+  images,
+  selected,
+  onSelect,
+  labelPrefix = "Design",
+  aspectClass = "aspect-square",
+}: ResultGridProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">
       {images.map((src, i) => {
@@ -33,7 +40,7 @@ export default function ResultGrid({ images, selected, onSelect, labelPrefix = "
             <button
               type="button"
               onClick={() => onSelect(i)}
-              className="block w-full aspect-square"
+              className={`block w-full ${aspectClass}`}
               aria-pressed={active}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

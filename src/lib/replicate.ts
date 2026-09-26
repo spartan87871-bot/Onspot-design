@@ -17,24 +17,27 @@ export function getReplicateClient(): Replicate | null {
 
 /** Normalizes the various shapes replicate-js can return for file outputs into plain URL strings. */
 function normalizeOutputs(output: unknown): string[] {
+  if (output == null) return [];
   const arr = Array.isArray(output) ? output : [output];
-  return arr.map((item) => {
-    if (typeof item === "string") return item;
-    if (item && typeof item === "object") {
-      const maybeUrlFn = (item as { url?: unknown }).url;
-      if (typeof maybeUrlFn === "function") {
-        const u = (maybeUrlFn as () => unknown).call(item);
-        if (typeof u === "string") return u;
-        if (u && typeof u === "object" && "href" in u) {
-          return String((u as { href: string }).href);
+  return arr
+    .map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item === "object") {
+        const maybeUrlFn = (item as { url?: unknown }).url;
+        if (typeof maybeUrlFn === "function") {
+          const u = (maybeUrlFn as () => unknown).call(item);
+          if (typeof u === "string") return u;
+          if (u && typeof u === "object" && "href" in u) {
+            return String((u as { href: string }).href);
+          }
+        }
+        if ("url" in (item as Record<string, unknown>)) {
+          return String((item as Record<string, unknown>).url);
         }
       }
-      if ("url" in (item as Record<string, unknown>)) {
-        return String((item as Record<string, unknown>).url);
-      }
-    }
-    return String(item);
-  });
+      return null;
+    })
+    .filter((u): u is string => typeof u === "string" && u.length > 0);
 }
 
 export interface GenerateOptions {
@@ -73,8 +76,22 @@ export async function generateImages({
     input.prompt_strength = promptStrength;
   }
 
-  const output = await replicate.run(FLUX_MODEL, { input });
-  const urls = normalizeOutputs(output);
+  // Note: we deliberately use the low-level predictions API + wait() rather than
+  // replicate.run() — in replicate-js 1.4.0, run() was observed to resolve with a
+  // null output even on a successfully completed, image-producing prediction.
+  let prediction = await replicate.predictions.create({
+    model: FLUX_MODEL,
+    input,
+  });
+  prediction = await replicate.wait(prediction);
+
+  if (prediction.status !== "succeeded") {
+    const detail =
+      typeof prediction.error === "string" ? prediction.error : JSON.stringify(prediction.error);
+    throw new Error(`Replicate prediction ${prediction.status}: ${detail}`);
+  }
+
+  const urls = normalizeOutputs(prediction.output);
   if (urls.length === 0) {
     throw new Error("Replicate returned no images");
   }

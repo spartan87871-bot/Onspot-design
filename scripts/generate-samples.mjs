@@ -67,20 +67,27 @@ const replicate = new Replicate({ auth: REPLICATE_TOKEN });
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_KEY });
 
 function normalizeOutputs(output) {
+  if (output == null) return [];
   const arr = Array.isArray(output) ? output : [output];
-  return arr.map((item) => {
-    if (typeof item === "string") return item;
-    if (item && typeof item.url === "function") {
-      const u = item.url();
-      return typeof u === "string" ? u : u?.href ?? String(u);
-    }
-    if (item && typeof item === "object" && "url" in item) return String(item.url);
-    return String(item);
-  });
+  return arr
+    .map((item) => {
+      if (typeof item === "string") return item;
+      if (item && typeof item.url === "function") {
+        const u = item.url();
+        return typeof u === "string" ? u : u?.href ?? String(u);
+      }
+      if (item && typeof item === "object" && "url" in item) return String(item.url);
+      return null;
+    })
+    .filter((u) => typeof u === "string" && u.length > 0);
 }
 
 async function generateImages(prompt, count = 1) {
-  const output = await replicate.run(FLUX_MODEL, {
+  // Note: we use the low-level predictions API + wait() rather than replicate.run() —
+  // in replicate-js 1.4.0, run() was observed to resolve with a null output even on a
+  // successfully completed, image-producing prediction.
+  let prediction = await replicate.predictions.create({
+    model: FLUX_MODEL,
     input: {
       prompt,
       num_outputs: count,
@@ -89,7 +96,13 @@ async function generateImages(prompt, count = 1) {
       megapixel: "1",
     },
   });
-  return normalizeOutputs(output);
+  prediction = await replicate.wait(prediction);
+  if (prediction.status !== "succeeded") {
+    throw new Error(`Replicate prediction ${prediction.status}: ${JSON.stringify(prediction.error)}`);
+  }
+  const urls = normalizeOutputs(prediction.output);
+  if (urls.length === 0) throw new Error("Replicate returned no images");
+  return urls;
 }
 
 async function downloadTo(url, destAbsPath) {

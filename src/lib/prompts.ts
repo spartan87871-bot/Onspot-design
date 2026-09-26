@@ -72,8 +72,13 @@ For each photo, write one short sentence naming ONLY the printed motif/pattern i
 repeat layout, and scale (e.g. "Photo 1: bold interlocking rounded-square lattice with a dotted circle
 inside each square, large-scale repeat"). If a photo shows no usable print (plain fabric, or the print
 isn't visible), say so in one short clause instead of guessing.
-Then write one final sentence combining the most compatible elements into a single coherent motif
-direction that could be redrawn as a flat, standalone illustration.
+Then write one final sentence picking the SINGLE strongest print to move forward with — real block-print
+fabric uses exactly one motif unit repeated evenly across the whole cloth, never several unrelated motifs
+mixed together in one design. If there are multiple photos, either pick the one print you judge most
+distinctive, or describe how one photo's motif shape could reasonably borrow just one secondary detail
+(like a border stripe or a dot accent) from another — never combine two unrelated main motifs into a
+patchwork. Name that single final direction explicitly, e.g. "Final direction: a single rounded-square
+lattice motif with a dotted circle inside each square, repeated evenly."
 Keep the whole answer under 80 words. Plain text, no markdown, no preamble.`;
 }
 
@@ -100,12 +105,12 @@ export function buildBlockPrintMotifPrompt(
 ): string {
   const paletteDesc = describeColors(colors);
   const parts = [
-    "Flat, top-down illustration of a single traditional Indian hand block-print textile motif,",
+    "Flat, top-down illustration of fabric printed with ONE single traditional Indian hand block-print textile motif repeated evenly across the whole cloth,",
     "in the style of Bagru/Sanganeri natural-dye block printing on cotton,",
     `using only these natural dye colours: ${paletteDesc}.`,
     userPrompt.trim() ? `Design brief: ${userPrompt.trim()}.` : "",
-    referenceNotes ? `Incorporate these reference elements: ${referenceNotes}` : "",
-    "Clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark, original motif not based on any existing brand.",
+    referenceNotes ? `Reference direction: ${referenceNotes}` : "",
+    "Exactly one motif shape repeated as a uniform, evenly-spaced grid — like real printed fabric, not a mood board or patchwork of different motifs. Do not mix multiple unrelated shapes, icons, or pattern styles into the same design. Clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark, original motif not based on any existing brand.",
   ];
   return parts.filter(Boolean).join(" ");
 }

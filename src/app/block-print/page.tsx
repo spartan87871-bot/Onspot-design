@@ -250,132 +250,137 @@ export default function BlockPrintStudioPage() {
               <ResultGrid images={motifs} selected={selected} onSelect={selectMotif} labelPrefix="Motif" />
 
               {selected !== null && (
-                <div className="rounded-3xl border hairline bg-paper p-6 space-y-6">
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={runTile}
-                      disabled={tileLoading}
-                      className="inline-flex items-center justify-center rounded-full bg-indigo text-cream px-5 py-2.5 font-medium hover:bg-indigo-dark transition-colors disabled:opacity-60"
-                    >
-                      {tileLoading ? "Building tile…" : "Turn into seamless repeat"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={runFeasibility}
-                      disabled={feasibilityLoading}
-                      className="inline-flex items-center justify-center rounded-full bg-terracotta text-cream px-5 py-2.5 font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-60"
-                    >
-                      {feasibilityLoading ? "Checking…" : "Can it be block printed?"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={runRemnants}
-                      disabled={remnantsLoading}
-                      className="inline-flex items-center justify-center rounded-full border-2 border-gold text-gold px-5 py-2.5 font-medium hover:bg-gold hover:text-cream transition-colors disabled:opacity-60"
-                    >
-                      {remnantsLoading ? "Thinking…" : "Remnant fabric ideas"}
-                    </button>
-                  </div>
-
-                  {tileLoading && <LoadingState messages={TILE_MESSAGES} compact />}
-
-                  {tile && !tileLoading && (
-                    <div>
-                      {tileDemo && (
-                        <div className="mb-3">
-                          <DemoBadge note={tileNote} />
-                        </div>
-                      )}
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div>
-                          <p className="text-sm font-medium text-ink mb-2">Fabric repeat</p>
-                          <div className="rounded-2xl overflow-hidden border hairline aspect-square">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={tile} alt="Seamless fabric tile" className="h-full w-full object-cover" />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium text-ink">Garment preview</p>
-                            <div className="flex gap-1 rounded-full bg-cream border hairline p-0.5">
-                              {(["kurta", "coord"] as const).map((g) => (
-                                <button
-                                  key={g}
-                                  type="button"
-                                  onClick={() => selectGarment(g)}
-                                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                                    garment === g ? "bg-indigo text-cream" : "text-ink-soft"
-                                  }`}
-                                >
-                                  {g === "kurta" ? "Kurta" : "Co-ord set"}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
-                            <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
-                          </div>
-                          <p className="text-xs text-ink-soft mt-1.5">
-                            Instant concept mockup — always available, never fails.
-                          </p>
-                        </div>
+                <div className="space-y-6">
+                  <div className="rounded-3xl border-2 border-gold bg-paper p-6">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div>
+                        <p className="font-display text-lg font-semibold text-ink">
+                          See it worn — {garment === "kurta" ? "Kurta" : "Co-ord set"}
+                        </p>
+                        <p className="text-sm text-ink-soft mt-0.5">
+                          A real studio photo of a model wearing this print. Takes longer, uses live AI.
+                        </p>
                       </div>
-
-                      <div className="mt-5 pt-5 border-t hairline">
-                        <div className="flex items-center justify-between flex-wrap gap-3">
-                          <div>
-                            <p className="text-sm font-medium text-ink">
-                              Want to see it as a real photo?
-                            </p>
-                            <p className="text-xs text-ink-soft mt-0.5">
-                              Generates an actual studio product photo of the {garment === "kurta" ? "kurta" : "co-ord set"} in this print — takes longer, uses live AI.
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={runGarmentPhoto}
-                            disabled={garmentPhotoLoading}
-                            className="inline-flex items-center justify-center rounded-full bg-gold text-cream px-5 py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
-                          >
-                            {garmentPhotoLoading ? "Generating…" : "Generate real photo"}
-                          </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex gap-1 rounded-full bg-cream border hairline p-0.5">
+                          {(["kurta", "coord"] as const).map((g) => (
+                            <button
+                              key={g}
+                              type="button"
+                              onClick={() => selectGarment(g)}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                garment === g ? "bg-indigo text-cream" : "text-ink-soft"
+                              }`}
+                            >
+                              {g === "kurta" ? "Kurta" : "Co-ord set"}
+                            </button>
+                          ))}
                         </div>
+                        <button
+                          type="button"
+                          onClick={runGarmentPhoto}
+                          disabled={garmentPhotoLoading}
+                          className="inline-flex items-center justify-center rounded-full bg-gold text-cream px-5 py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+                        >
+                          {garmentPhotoLoading
+                            ? "Generating…"
+                            : garmentPhotos
+                            ? "Regenerate"
+                            : "Generate real photo"}
+                        </button>
+                      </div>
+                    </div>
 
-                        {garmentPhotoLoading && <LoadingState messages={GARMENT_PHOTO_MESSAGES} compact />}
+                    {garmentPhotoLoading && <LoadingState messages={GARMENT_PHOTO_MESSAGES} compact />}
 
-                        {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length === 0 && (
-                          <div className="mt-3">
+                    {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length === 0 && (
+                      <div className="mt-3">
+                        <DemoBadge note={garmentPhotoNote} />
+                      </div>
+                    )}
+
+                    {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length > 0 && (
+                      <div className="mt-4">
+                        {garmentPhotoDemo && (
+                          <div className="mb-3">
                             <DemoBadge note={garmentPhotoNote} />
                           </div>
                         )}
-
-                        {garmentPhotos && !garmentPhotoLoading && garmentPhotos.length > 0 && (
-                          <div className="mt-4">
-                            {garmentPhotoDemo && (
-                              <div className="mb-3">
-                                <DemoBadge note={garmentPhotoNote} />
-                              </div>
-                            )}
-                            <div className="grid sm:grid-cols-2 gap-4">
-                              {garmentPhotos.map((src, i) => (
-                                <div key={i} className="rounded-2xl overflow-hidden border hairline aspect-[3/4]">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
-                                    src={src}
-                                    alt={`Photorealistic ${garment} preview ${i + 1}`}
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                              ))}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {garmentPhotos.map((src, i) => (
+                            <div key={i} className="rounded-2xl overflow-hidden border hairline aspect-[3/4]">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={src}
+                                alt={`Photorealistic ${garment} preview ${i + 1}`}
+                                className="h-full w-full object-cover"
+                              />
                             </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-3xl border hairline bg-paper p-6 space-y-6">
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={runTile}
+                        disabled={tileLoading}
+                        className="inline-flex items-center justify-center rounded-full bg-indigo text-cream px-5 py-2.5 font-medium hover:bg-indigo-dark transition-colors disabled:opacity-60"
+                      >
+                        {tileLoading ? "Building tile…" : "Turn into seamless repeat"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={runFeasibility}
+                        disabled={feasibilityLoading}
+                        className="inline-flex items-center justify-center rounded-full bg-terracotta text-cream px-5 py-2.5 font-medium hover:bg-terracotta-dark transition-colors disabled:opacity-60"
+                      >
+                        {feasibilityLoading ? "Checking…" : "Can it be block printed?"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={runRemnants}
+                        disabled={remnantsLoading}
+                        className="inline-flex items-center justify-center rounded-full border-2 border-gold text-gold px-5 py-2.5 font-medium hover:bg-gold hover:text-cream transition-colors disabled:opacity-60"
+                      >
+                        {remnantsLoading ? "Thinking…" : "Remnant fabric ideas"}
+                      </button>
+                    </div>
+
+                    {tileLoading && <LoadingState messages={TILE_MESSAGES} compact />}
+
+                    {tile && !tileLoading && (
+                      <div>
+                        {tileDemo && (
+                          <div className="mb-3">
+                            <DemoBadge note={tileNote} />
                           </div>
                         )}
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div>
+                            <p className="text-sm font-medium text-ink mb-2">Fabric repeat</p>
+                            <div className="rounded-2xl overflow-hidden border hairline aspect-square">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={tile} alt="Seamless fabric tile" className="h-full w-full object-cover" />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-ink mb-2">Instant concept mockup</p>
+                            <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
+                              <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
+                            </div>
+                            <p className="text-xs text-ink-soft mt-1.5">
+                              Flat vector mockup — always available, never fails.
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {feasibilityLoading && <LoadingState messages={FEASIBILITY_MESSAGES} compact />}
+                    {feasibilityLoading && <LoadingState messages={FEASIBILITY_MESSAGES} compact />}
 
                   {feasibility && !feasibilityLoading && (
                     <div className="space-y-5">
@@ -439,6 +444,7 @@ export default function BlockPrintStudioPage() {
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
               )}
             </div>

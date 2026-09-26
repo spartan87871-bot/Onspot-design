@@ -28,6 +28,21 @@ export function buildJewelleryImagePrompt(
   return parts.filter(Boolean).join(" ");
 }
 
+/** For flux-kontext, which edits/combines the actual reference image(s) it's given rather than generating from a blank canvas. */
+export function buildJewelleryKontextPrompt(
+  userPrompt: string,
+  options: JewelleryOptions,
+  extraNotes?: string
+): string {
+  const parts = [
+    `Using the reference photo(s) provided, design a new, original handcrafted Indian ${options.type} in ${options.metal} metal, ${options.style} style craftsmanship.`,
+    userPrompt.trim() ? `Combine them like this: ${userPrompt.trim()}.` : "Blend the most distinctive elements of the references into one coherent new design.",
+    extraNotes ? `Additional direction: ${extraNotes}` : "",
+    "Result should read as a professional studio product photograph, centered on a soft neutral backdrop, clean even studio lighting, sharp focus, high detail on metalwork and stone-setting, no text, no watermark, no human model, no brand markings. This must be a new original design, not a copy of the reference or any existing brand's product.",
+  ];
+  return parts.filter(Boolean).join(" ");
+}
+
 export function buildJewelleryFeasibilityPrompt(
   options: JewelleryOptions
 ): string {
@@ -80,6 +95,23 @@ export function buildBlockPrintMotifPrompt(
     userPrompt.trim() ? `Design brief: ${userPrompt.trim()}.` : "",
     referenceNotes ? `Incorporate these reference elements: ${referenceNotes}` : "",
     "Clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark, original motif not based on any existing brand.",
+  ];
+  return parts.filter(Boolean).join(" ");
+}
+
+/** For flux-kontext, which edits/combines the actual reference image(s) it's given rather than generating from a blank canvas. */
+export function buildBlockPrintKontextPrompt(
+  userPrompt: string,
+  colors: NaturalDyeColor[],
+  extraNotes?: string
+): string {
+  const paletteDesc = describeColors(colors);
+  const parts = [
+    "Using the reference photo(s) provided, design a new, original traditional Indian hand block-print textile motif, in the style of Bagru/Sanganeri natural-dye block printing on cotton,",
+    `using only these natural dye colours: ${paletteDesc}.`,
+    userPrompt.trim() ? `Combine them like this: ${userPrompt.trim()}.` : "Blend the most distinctive elements of the references into one coherent new motif.",
+    extraNotes ? `Additional direction: ${extraNotes}` : "",
+    "Result should be a flat, top-down illustration with clean bold outlines suitable for hand-carved wood block printing, on a plain natural cotton background, no fabric folds, no text, no watermark. This must be a new original motif, not a copy of the reference or any existing brand's print.",
   ];
   return parts.filter(Boolean).join(" ");
 }

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { askClaudeText } from "@/lib/anthropic";
-import { generateImages } from "@/lib/replicate";
+import { generateImages, generateImagesFromReferences } from "@/lib/replicate";
 import { getBlockprintMotifs, DEMO_NOTE_CALL_FAILED, DEMO_NOTE_NO_KEYS } from "@/lib/demo";
 import { isSupportedImageDataUrl } from "@/lib/image";
 import {
   BLOCKPRINT_VISION_SYSTEM,
+  buildBlockPrintKontextPrompt,
   buildBlockPrintMotifPrompt,
   buildBlockPrintReferenceDescriptionPrompt,
 } from "@/lib/prompts";
@@ -62,8 +63,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const enrichedPrompt = buildBlockPrintMotifPrompt(prompt, colors, referenceNotes);
-    const images = await generateImages({ prompt: enrichedPrompt, count: 4 });
+    let images: string[];
+    if (referenceImages.length > 0) {
+      // Feed the first 1-2 reference photos in as real pixels via FLUX Kontext, instead of
+      // only describing them in text — a 3rd reference (if any) still informs the prompt
+      // via referenceNotes above.
+      const kontextPrompt = buildBlockPrintKontextPrompt(prompt, colors, referenceNotes);
+      images = await generateImagesFromReferences({
+        prompt: kontextPrompt,
+        referenceImages: referenceImages.slice(0, 2),
+        count: 4,
+      });
+    } else {
+      const enrichedPrompt = buildBlockPrintMotifPrompt(prompt, colors, referenceNotes);
+      images = await generateImages({ prompt: enrichedPrompt, count: 4 });
+    }
     return NextResponse.json({ images, demo: false });
   } catch {
     return NextResponse.json({

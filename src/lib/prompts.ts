@@ -1,3 +1,4 @@
+import { GARMENTS, type BlockPrintGarment } from "./garments";
 import type { JewelleryOptions, NaturalDyeColor } from "./types";
 
 export const JEWELLERY_VISION_SYSTEM = `You are a senior jewellery design consultant for an Indian fine-jewellery brand.
@@ -98,18 +99,10 @@ export function describeColors(colors: NaturalDyeColor[]): string {
   return colors.map((c) => DYE_COLOR_DESCRIPTIONS[c]).join(", ");
 }
 
-export type BlockPrintGarment = "kurta" | "coord" | "top";
-
-const GARMENT_DESCRIPTIONS: Record<BlockPrintGarment, string> = {
-  kurta:
-    "a relaxed A-line cotton kurta, mid-thigh length, front button placket, side pockets, worn over solid-coloured straight-leg pants",
-  coord:
-    "a co-ord set: a relaxed cropped top paired with matching wide-leg pants, both cut from the same fabric",
-  top: "a relaxed hip-length cotton top/tunic with three-quarter sleeves and a round or notched neckline, worn loose over plain solid-coloured jeans or trousers",
-};
+export type { BlockPrintGarment };
 
 export function describeGarment(garment: BlockPrintGarment): string {
-  return GARMENT_DESCRIPTIONS[garment];
+  return GARMENTS[garment].description;
 }
 
 export function buildBlockPrintMotifPrompt(
@@ -170,14 +163,14 @@ export function buildBlockPrintDesignPrompt(
   const garmentDesc = describeGarment(garment);
   const hasDirection = Boolean(userPrompt.trim() || referenceNotes);
   const parts = [
-    `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric,`,
+    `Professional editorial fashion product photograph of a ${GARMENTS[garment].subject} wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric,`,
     `using only these natural dye colours: ${paletteDesc}.`,
     userPrompt.trim() ? `Design brief for the print motif: ${userPrompt.trim()}.` : "",
     referenceNotes ? `Reference direction for the print motif: ${referenceNotes}` : "",
     !hasDirection
       ? "Original hand block-print motif of your own design, one single shape repeated evenly across the fabric."
       : "The print motif repeats as one single shape evenly across the fabric.",
-    "Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no text, no watermark, no logos, no brand markings, original garment and print not based on any existing brand.",
+    `Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, ${GARMENTS[garment].framing}, sharp focus on the fabric print and texture, realistic fabric drape and folds, no text, no watermark, no logos, no brand markings, original garment and print not based on any existing brand.`,
   ];
   return parts.filter(Boolean).join(" ");
 }
@@ -189,7 +182,7 @@ export function buildGarmentPhotoPrompt(
 ): string {
   const paletteDesc = describeColors(colors);
   const garmentDesc = describeGarment(garment);
-  return `Professional editorial fashion product photograph of a woman wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric featuring a repeating motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, shot from the waist up to mid-thigh, sharp focus on the fabric print and texture, realistic fabric drape and folds, no visible face close-up needed, no text, no watermark, no logos, no brand markings, original garment not based on any existing brand.`;
+  return `Professional editorial fashion product photograph of a ${GARMENTS[garment].subject} wearing ${garmentDesc}, made from 100% cotton hand block-printed fabric featuring a repeating motif (${motifDescription}), using only these natural dye colours: ${paletteDesc}. Plain neutral studio backdrop, soft natural daylight, relaxed candid standing pose, ${GARMENTS[garment].framing}, sharp focus on the fabric print and texture, realistic fabric drape and folds, no visible face close-up needed, no text, no watermark, no logos, no brand markings, original garment not based on any existing brand.`;
 }
 
 export function buildBlockPrintFeasibilityPrompt(): string {
@@ -211,7 +204,7 @@ Respond with ONLY a single JSON object (no markdown fences, no commentary) with 
 
 export function buildRemnantIdeasPrompt(motifDescription: string): string {
   return `A block-print textile brand has leftover fabric remnants printed with this motif: ${motifDescription}.
-Suggest exactly 3 small, sellable products they could make from the leftover fabric scraps (e.g. bags, pouches, textile jewellery, accessories).
+Suggest exactly 3 small, sellable products they could make from the leftover fabric scraps (e.g. potli bags, pouches, scrunchies, journal covers, bookmarks, home accessories).
 Respond with ONLY a JSON array (no markdown fences, no commentary) of exactly 3 objects, each with keys:
 { "title": short product name (max 5 words), "description": one sentence, max 22 words }`;
 }

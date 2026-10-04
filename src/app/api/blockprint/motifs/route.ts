@@ -9,6 +9,7 @@ import {
   buildBlockPrintReferenceDescriptionPrompt,
   type BlockPrintGarment,
 } from "@/lib/prompts";
+import { parseGarment } from "@/lib/garments";
 import { NATURAL_DYE_COLORS, type NaturalDyeColor } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -36,8 +37,7 @@ export async function POST(req: NextRequest) {
   const referenceImages = (Array.isArray(body.referenceImages) ? body.referenceImages : [])
     .filter(isSupportedImageDataUrl)
     .slice(0, 3);
-  const garment: BlockPrintGarment =
-    body.garment === "coord" ? "coord" : body.garment === "top" ? "top" : "kurta";
+  const garment: BlockPrintGarment = parseGarment(body.garment);
 
   if (!prompt.trim() && referenceImages.length === 0) {
     return NextResponse.json(

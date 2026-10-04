@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateImages } from "@/lib/replicate";
 import { buildGarmentPhotoPrompt, type BlockPrintGarment } from "@/lib/prompts";
+import { parseGarment } from "@/lib/garments";
 import { NATURAL_DYE_COLORS, type NaturalDyeColor } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -23,8 +24,7 @@ export async function POST(req: NextRequest) {
   const colors = (Array.isArray(body.colors) ? body.colors : [])
     .filter((c): c is NaturalDyeColor => NATURAL_DYE_COLORS.includes(c as NaturalDyeColor))
     .slice(0, 3);
-  const garment: BlockPrintGarment =
-    body.garment === "coord" ? "coord" : body.garment === "top" ? "top" : "kurta";
+  const garment: BlockPrintGarment = parseGarment(body.garment);
   const motifDescription = (body.motifDescription || "a hand block-printed motif").slice(0, 300);
 
   if (colors.length === 0) {

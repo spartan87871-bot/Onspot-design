@@ -9,13 +9,15 @@ import ResultGrid from "@/components/ResultGrid";
 import DemoBadge from "@/components/DemoBadge";
 import ScoreDial from "@/components/ScoreDial";
 import GarmentPreview from "@/components/GarmentPreview";
-import type { BlockPrintGarment } from "@/lib/prompts";
+import { GARMENTS, GARMENT_OPTIONS, type BlockPrintGarment } from "@/lib/garments";
 import type { BlockPrintFeasibility, NaturalDyeColor, RemnantIdea } from "@/lib/types";
 
-const GARMENT_OPTIONS: { value: BlockPrintGarment; label: string }[] = [
-  { value: "kurta", label: "Kurta" },
-  { value: "top", label: "Top / Tunic" },
-  { value: "coord", label: "Co-ord set" },
+const PROMPT_IDEAS = [
+  "Small paisley booti in a diagonal grid",
+  "Lotus buds in a bold geometric jaal",
+  "Delicate floral vine with leaves",
+  "Ajrakh-inspired diamond lattice",
+  "Tiny scattered dots and leaves",
 ];
 
 const DESIGN_MESSAGES = [
@@ -185,8 +187,21 @@ export default function BlockPrintStudioPage() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder='e.g. "a small paisley booti, spaced in a diagonal grid" — or leave blank and just upload photos'
               rows={3}
+              autoComplete="off"
               className="w-full rounded-2xl border hairline bg-cream px-4 py-3 text-ink placeholder:text-ink-soft/70 focus:outline-none focus:ring-2 focus:ring-indigo/40 resize-none"
             />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {PROMPT_IDEAS.map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  onClick={() => setPrompt(idea)}
+                  className="rounded-full border border-line bg-cream px-3 py-1 text-xs text-ink-soft hover:border-indigo hover:text-indigo transition-colors"
+                >
+                  {idea}
+                </button>
+              ))}
+            </div>
           </div>
 
           <UploadDropzone
@@ -275,7 +290,7 @@ export default function BlockPrintStudioPage() {
                         <div>
                           <p className="text-sm font-medium text-ink mb-2">Instant concept mockup</p>
                           <div className="rounded-2xl border hairline bg-cream flex items-center justify-center p-4 aspect-square">
-                            <GarmentPreview tileUrl={tile} garment={garment} className="h-full w-auto" />
+                            <GarmentPreview tileUrl={tile} garment={GARMENTS[garment].preview} className="h-full w-auto" />
                           </div>
                           <p className="text-xs text-ink-soft mt-1.5">
                             Flat vector mockup — always available, never fails.
